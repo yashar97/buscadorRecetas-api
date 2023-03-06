@@ -5,12 +5,20 @@ const modal = new bootstrap.Modal('#modal', {});
 const toast = new bootstrap.Toast('#toast');
 
 //eventos
-selectCategorias.addEventListener('change', obtenerRecetas);
+if(selectCategorias) {
 
-//funciones
-window.onload = () => {
+    selectCategorias.addEventListener('change', obtenerRecetas);
     fetchCategorias();
 }
+
+const favoritosDiv = document.querySelector('.favoritos');
+if(favoritosDiv) {
+    obtenerFavoritos();
+}
+
+
+//funciones
+
 
 //hacemos una peticion fetch para obtener toda las categorias
 function fetchCategorias() {
@@ -56,7 +64,7 @@ function mostrarRecetasHTML(recetas) {
 
         const cardImg = document.createElement('img');
         cardImg.classList.add('card-img-top');
-        cardImg.src = strMealThumb;
+        cardImg.src = strMealThumb || receta.img;
 
         const cardBody = document.createElement('div');
         cardBody.classList.add('card-body');
@@ -71,7 +79,7 @@ function mostrarRecetasHTML(recetas) {
         //evento click al boton
         cardButton.onclick = () => {
             //mostramos la receta en el modal
-            fetchVerReceta(idMeal);
+            fetchVerReceta(idMeal||receta.id);
         }
 
         cardBody.appendChild(cardTitle);
@@ -194,6 +202,21 @@ function eliminarFavorito(id) {
     const nuevosFavoritos = favoritos.filter(element => element.id !== id);
 
     localStorage.setItem('favoritos', JSON.stringify(nuevosFavoritos));
+}
+
+function obtenerFavoritos() {
+    const favoritos = JSON.parse(localStorage.getItem('favoritos')) || [];
+
+    if(favoritos.length) {
+        
+        mostrarRecetasHTML(favoritos);
+        return;
+    }
+
+    const noFavoritos = document.createElement('p');
+    noFavoritos.textContent = 'No hay favoritos aun';
+    noFavoritos.classList.add('fs-4', 'text-center', 'font-bold', 'mt-5');
+    favoritosDiv.appendChild(noFavoritos)
 }
 
 //funcion que limpia el html
